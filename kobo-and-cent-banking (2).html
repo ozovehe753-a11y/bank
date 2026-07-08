@@ -1,0 +1,1246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kobo & Cent — Multi-Currency Banking</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#0B1210;
+    --surface:#111B17;
+    --card:#15211C;
+    --card-2:#182720;
+    --line: rgba(237,237,230,0.08);
+    --accent:#2ED9A8;
+    --accent-dim: rgba(46,217,168,0.14);
+    --gold:#D4B96A;
+    --text:#EDEDE6;
+    --muted:#8FA39B;
+    --danger:#E2665A;
+    --danger-dim: rgba(226,102,90,0.14);
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  html,body{height:100%;}
+  body{
+    background: var(--ink);
+    color: var(--text);
+    font-family: 'Inter', sans-serif;
+    min-height:100vh;
+    -webkit-font-smoothing: antialiased;
+  }
+  ::selection{ background: var(--accent); color: var(--ink); }
+
+  .app{
+    display:flex;
+    min-height:100vh;
+  }
+
+  /* ---------- SIDEBAR ---------- */
+  .sidebar{
+    width:236px;
+    flex-shrink:0;
+    background: linear-gradient(180deg, #0D1613 0%, #0A0F0D 100%);
+    border-right:1px solid var(--line);
+    padding: 28px 18px;
+    display:flex;
+    flex-direction:column;
+    gap: 34px;
+  }
+  .brand{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    padding: 0 6px;
+  }
+  .brand-mark{
+    width:34px; height:34px;
+    border-radius:9px;
+    background: var(--accent);
+    display:flex; align-items:center; justify-content:center;
+    color:var(--ink);
+    font-family:'Fraunces', serif;
+    font-weight:700;
+    font-size:16px;
+    flex-shrink:0;
+  }
+  .brand-name{
+    font-family:'Fraunces', serif;
+    font-weight:600;
+    font-size:17px;
+    letter-spacing:0.2px;
+    line-height:1.1;
+  }
+  .brand-tag{
+    font-size:10.5px;
+    color: var(--muted);
+    letter-spacing:0.3px;
+  }
+
+  .nav{ display:flex; flex-direction:column; gap:2px; }
+  .nav-eyebrow{
+    font-size:10px;
+    text-transform:uppercase;
+    letter-spacing:1.4px;
+    color: var(--muted);
+    padding: 0 10px 8px;
+  }
+  .nav-item{
+    display:flex;
+    align-items:center;
+    gap:11px;
+    padding:10px 10px;
+    border-radius:8px;
+    color: var(--muted);
+    font-size:13.5px;
+    font-weight:500;
+    cursor:pointer;
+    border:none;
+    background:none;
+    text-align:left;
+    width:100%;
+    transition: background .15s ease, color .15s ease;
+  }
+  .nav-item svg{ width:17px; height:17px; flex-shrink:0; }
+  .nav-item:hover{ background: var(--card); color: var(--text); }
+  .nav-item.active{ background: var(--accent-dim); color: var(--accent); }
+
+  .sidebar-foot{
+    margin-top:auto;
+    padding: 12px 10px;
+    border-top:1px solid var(--line);
+    display:flex; align-items:center; gap:10px;
+    border:none; background:none; width:100%;
+    text-align:left; cursor:pointer;
+    border-radius:8px;
+    font-family:inherit;
+    transition: background .15s ease;
+  }
+  .sidebar-foot:hover{ background: var(--card); }
+  .sidebar-foot:focus-visible{ outline:2px solid var(--accent); outline-offset:2px; }
+  .avatar{
+    width:32px; height:32px; border-radius:50%;
+    overflow:hidden;
+    display:flex; align-items:center; justify-content:center;
+    flex-shrink:0;
+  }
+  .avatar svg{ display:block; width:100%; height:100%; }
+  .sidebar-foot-name{ font-size:12.5px; font-weight:600; }
+  .sidebar-foot-sub{ font-size:10.5px; color:var(--muted); }
+
+  /* ---------- MAIN ---------- */
+  .main{
+    flex:1;
+    padding: 30px 40px 60px;
+    max-width: 1180px;
+  }
+  .topbar{
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-start;
+    margin-bottom:26px;
+    gap:20px;
+    flex-wrap:wrap;
+  }
+  .greeting-eyebrow{
+    font-size:10.5px; text-transform:uppercase; letter-spacing:1.6px; color:var(--muted); margin-bottom:6px;
+  }
+  .greeting{
+    font-family:'Fraunces', serif;
+    font-size:26px;
+    font-weight:500;
+  }
+
+  .currency-switcher{
+    display:flex;
+    gap:6px;
+    background: var(--card);
+    border:1px solid var(--line);
+    padding:5px;
+    border-radius:11px;
+    flex-wrap:wrap;
+  }
+  .curr-pill{
+    border:none;
+    background:none;
+    color:var(--muted);
+    font-family:'IBM Plex Mono', monospace;
+    font-size:12px;
+    font-weight:600;
+    padding:7px 11px;
+    border-radius:7px;
+    cursor:pointer;
+    letter-spacing:0.3px;
+    transition: all .15s ease;
+  }
+  .curr-pill:hover{ color:var(--text); }
+  .curr-pill.active{ background:var(--accent); color:var(--ink); }
+
+  /* ---------- BALANCE CARD ---------- */
+  .balance-card{
+    position:relative;
+    background: linear-gradient(135deg, #16261F 0%, #101C17 100%);
+    border:1px solid var(--line);
+    border-radius:20px;
+    padding: 30px 34px;
+    overflow:hidden;
+    margin-bottom: 22px;
+  }
+  .guilloche{
+    position:absolute;
+    top:0; right:0;
+    width:60%;
+    height:100%;
+    opacity:0.5;
+    pointer-events:none;
+  }
+  .balance-row{
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-start;
+    flex-wrap:wrap;
+    gap: 24px;
+    position:relative;
+    z-index:1;
+  }
+  .balance-eyebrow{
+    font-size:10.5px; text-transform:uppercase; letter-spacing:1.6px; color:var(--muted); margin-bottom:10px;
+  }
+  .balance-figure{
+    font-family:'Fraunces', serif;
+    font-weight:600;
+    font-size:46px;
+    letter-spacing:-0.5px;
+    line-height:1;
+  }
+  .balance-figure .cents{ font-size:24px; color:var(--muted); }
+  .balance-sub{
+    margin-top:10px;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:12px;
+    color:var(--muted);
+  }
+  .acct-block{ text-align:right; }
+  .acct-label{ font-size:10.5px; text-transform:uppercase; letter-spacing:1.6px; color:var(--muted); margin-bottom:8px; }
+  .acct-number{ font-family:'IBM Plex Mono', monospace; font-size:15px; letter-spacing:1.5px; }
+  .acct-name{ font-size:12px; color:var(--muted); margin-top:4px; }
+
+  .action-row{
+    display:flex;
+    gap:12px;
+    margin-top:26px;
+    position:relative;
+    z-index:1;
+    flex-wrap:wrap;
+  }
+  .action-btn{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    border:1px solid var(--line);
+    background: rgba(237,237,230,0.04);
+    color:var(--text);
+    padding:10px 18px;
+    border-radius:10px;
+    font-size:13px;
+    font-weight:600;
+    cursor:pointer;
+    transition: all .15s ease;
+  }
+  .action-btn svg{ width:15px; height:15px; }
+  .action-btn:hover{ background: var(--accent); color:var(--ink); border-color:var(--accent); }
+  .action-btn.primary{ background:var(--accent); color:var(--ink); border-color:var(--accent); }
+  .action-btn.primary:hover{ opacity:0.88; background:var(--accent); }
+
+  /* ---------- RATE TICKER ---------- */
+  .ticker-wrap{
+    border:1px solid var(--line);
+    border-radius:14px;
+    background: var(--card);
+    padding: 4px 0;
+    overflow:hidden;
+    margin-bottom: 26px;
+  }
+  .ticker{
+    display:flex;
+    gap:0;
+    white-space:nowrap;
+    animation: scroll 26s linear infinite;
+    width: max-content;
+  }
+  @keyframes scroll{
+    0%{ transform: translateX(0); }
+    100%{ transform: translateX(-50%); }
+  }
+  .ticker-item{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:12px;
+    padding: 9px 22px;
+    border-right:1px solid var(--line);
+    color:var(--muted);
+    display:flex;
+    gap:8px;
+    align-items:center;
+  }
+  .ticker-item b{ color:var(--text); }
+  .ticker-item .up{ color:var(--accent); }
+  .ticker-item .down{ color:var(--danger); }
+
+  /* ---------- GRID ---------- */
+  .grid-2{
+    display:grid;
+    grid-template-columns: 1.5fr 1fr;
+    gap: 22px;
+    align-items:start;
+  }
+  @media (max-width: 880px){ .grid-2{ grid-template-columns: 1fr; } }
+
+  .panel{
+    background: var(--card);
+    border:1px solid var(--line);
+    border-radius:16px;
+    padding: 22px 24px;
+  }
+  .panel-head{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:16px;
+  }
+  .panel-title{ font-family:'Fraunces', serif; font-size:16px; font-weight:600; }
+  .panel-sub{ font-size:11.5px; color:var(--muted); }
+
+  .txn-row{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding: 12px 0;
+    border-bottom:1px solid var(--line);
+    gap: 12px;
+  }
+  .txn-row:last-child{ border-bottom:none; }
+  .txn-left{ display:flex; align-items:center; gap:12px; min-width:0; }
+  .txn-icon{
+    width:36px; height:36px;
+    border-radius:9px;
+    display:flex; align-items:center; justify-content:center;
+    flex-shrink:0;
+  }
+  .txn-icon svg{ width:16px; height:16px; }
+  .txn-icon.credit{ background: var(--accent-dim); color: var(--accent); }
+  .txn-icon.debit{ background: var(--danger-dim); color: var(--danger); }
+  .txn-name{ font-size:13.5px; font-weight:600; }
+  .txn-meta{ font-size:11px; color:var(--muted); margin-top:2px; }
+  .txn-amt{ font-family:'IBM Plex Mono', monospace; font-size:13.5px; font-weight:600; white-space:nowrap; }
+  .txn-amt.credit{ color: var(--accent); }
+  .txn-amt.debit{ color: var(--danger); }
+
+  .empty-state{ padding: 30px 6px; text-align:center; color:var(--muted); font-size:12.5px; }
+
+  .loan-empty{ text-align:center; padding: 18px 6px 8px; }
+  .loan-empty p{ font-size:12.5px; color:var(--muted); margin-bottom:16px; line-height:1.5; }
+  .loan-grid{ display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-bottom:16px; }
+  .loan-badge{
+    display:inline-flex; align-items:center; gap:6px;
+    font-size:10.5px; text-transform:uppercase; letter-spacing:1px;
+    color: var(--accent); background: var(--accent-dim);
+    padding: 4px 10px; border-radius:20px; margin-bottom:14px;
+  }
+  .tenure-options{ display:flex; gap:8px; }
+  .tenure-opt{
+    flex:1; text-align:center; cursor:pointer;
+    border:1px solid var(--line); background: var(--card-2);
+    border-radius:9px; padding:10px 6px; font-size:12px; color:var(--muted);
+  }
+  .tenure-opt input{ display:none; }
+  .tenure-opt.selected{ border-color: var(--accent); color: var(--text); background: var(--accent-dim); }
+  .tenure-opt .t-months{ font-weight:700; font-family:'IBM Plex Mono', monospace; font-size:14px; color:var(--text); display:block; }
+  .tenure-opt .t-rate{ font-size:10.5px; }
+
+  .profile-head{
+    display:flex; align-items:center; gap:14px;
+    padding-bottom:18px; margin-bottom:6px;
+  }
+  .profile-avatar-lg{ width:56px; height:56px; border-radius:50%; overflow:hidden; flex-shrink:0; }
+  .profile-avatar-lg svg{ display:block; width:100%; height:100%; }
+  .profile-name{ font-family:'Fraunces', serif; font-size:18px; font-weight:600; }
+  .profile-sub{ font-size:12px; color:var(--muted); margin-top:2px; }
+  .profile-row{
+    display:flex; justify-content:space-between; align-items:center;
+    padding:11px 0; border-bottom:1px solid var(--line); gap:12px;
+  }
+  .profile-row:last-child{ border-bottom:none; }
+  .profile-row .p-label{ font-size:11px; text-transform:uppercase; letter-spacing:1px; color:var(--muted); }
+  .profile-row .p-value{ font-family:'IBM Plex Mono', monospace; font-size:12.5px; text-align:right; }
+  .profile-status{
+    display:inline-flex; align-items:center; gap:6px;
+    font-size:11px; color:var(--accent); background:var(--accent-dim);
+    padding:3px 9px; border-radius:20px;
+  }
+
+  .stat-block{ margin-bottom: 18px; }
+  .stat-block:last-child{ margin-bottom:0; }
+  .stat-label{ font-size:11px; color:var(--muted); text-transform:uppercase; letter-spacing:1px; margin-bottom:6px; }
+  .stat-value{ font-family:'IBM Plex Mono', monospace; font-size:19px; font-weight:600; }
+  .stat-bar-track{ height:5px; border-radius:4px; background:var(--card-2); margin-top:8px; overflow:hidden; }
+  .stat-bar-fill{ height:100%; background: var(--accent); border-radius:4px; }
+
+  /* ---------- MODAL ---------- */
+  .overlay{
+    position:fixed; inset:0;
+    background: rgba(6,10,8,0.72);
+    backdrop-filter: blur(3px);
+    display:none;
+    align-items:center;
+    justify-content:center;
+    z-index:50;
+    padding:20px;
+  }
+  .overlay.open{ display:flex; }
+  .modal{
+    background: var(--card);
+    border:1px solid var(--line);
+    border-radius:18px;
+    width:100%;
+    max-width:420px;
+    padding: 26px 26px 22px;
+    position:relative;
+  }
+  .modal-head{ display:flex; justify-content:space-between; align-items:center; margin-bottom:6px; }
+  .modal-title{ font-family:'Fraunces', serif; font-size:19px; font-weight:600; }
+  .modal-close{
+    background:none; border:none; color:var(--muted); cursor:pointer;
+    width:28px; height:28px; display:flex; align-items:center; justify-content:center;
+    border-radius:7px;
+  }
+  .modal-close:hover{ background: var(--card-2); color:var(--text); }
+  .modal-sub{ font-size:12px; color:var(--muted); margin-bottom:20px; }
+
+  .field{ margin-bottom:14px; }
+  .field label{ display:block; font-size:11px; text-transform:uppercase; letter-spacing:1px; color:var(--muted); margin-bottom:7px; }
+  .field input, .field select{
+    width:100%;
+    background: var(--card-2);
+    border:1px solid var(--line);
+    border-radius:9px;
+    padding:11px 13px;
+    color:var(--text);
+    font-family:'IBM Plex Mono', monospace;
+    font-size:14px;
+    outline:none;
+  }
+  .field input::placeholder{ color: #556158; font-family:'Inter',sans-serif; }
+  .field input:focus, .field select:focus{ border-color: var(--accent); }
+  .field-hint{ font-size:11px; color:var(--muted); margin-top:6px; }
+  .field-hint.err{ color: var(--danger); }
+
+  .modal-submit{
+    width:100%;
+    background: var(--accent);
+    color: var(--ink);
+    border:none;
+    padding:13px;
+    border-radius:10px;
+    font-weight:700;
+    font-size:13.5px;
+    cursor:pointer;
+    margin-top:6px;
+    transition: opacity .15s ease;
+  }
+  .modal-submit:hover{ opacity:0.88; }
+  .modal-submit:focus-visible, .action-btn:focus-visible, .nav-item:focus-visible, .curr-pill:focus-visible{
+    outline: 2px solid var(--accent); outline-offset:2px;
+  }
+
+  .toast{
+    position:fixed;
+    bottom:24px; left:50%;
+    transform: translateX(-50%) translateY(20px);
+    background: var(--accent);
+    color:var(--ink);
+    padding: 13px 20px;
+    border-radius:11px;
+    font-size:13px;
+    font-weight:600;
+    opacity:0;
+    pointer-events:none;
+    transition: all .25s ease;
+    z-index:100;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+  }
+  .toast.show{ opacity:1; transform: translateX(-50%) translateY(0); }
+  .toast.danger{ background: var(--danger); }
+
+  @media (max-width: 760px){
+    .sidebar{ display:none; }
+    .main{ padding: 22px 18px 50px; }
+    .balance-figure{ font-size:34px; }
+    .acct-block{ text-align:left; }
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    .ticker{ animation:none; }
+  }
+</style>
+</head>
+<body>
+
+<div class="app">
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="brand-mark">₭</div>
+      <div>
+        <div class="brand-name">Kobo & Cent</div>
+        <div class="brand-tag">money, wherever home is</div>
+      </div>
+    </div>
+
+    <nav class="nav">
+      <div class="nav-eyebrow">Menu</div>
+      <button class="nav-item active" data-scroll="top">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg>
+        Dashboard
+      </button>
+      <button class="nav-item" data-modal="transfer">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 7h13M7 7l4-4M7 7l4 4"/><path d="M17 17H4M17 17l-4-4M17 17l-4 4"/></svg>
+        Transfer
+      </button>
+      <button class="nav-item" data-modal="deposit">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v13"/><path d="M6 11l6 6 6-6"/><path d="M4 21h16"/></svg>
+        Deposit
+      </button>
+      <button class="nav-item" data-modal="withdraw">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 21V8"/><path d="M18 13l-6-6-6 6"/><path d="M4 3h16"/></svg>
+        Withdraw
+      </button>
+      <button class="nav-item" data-scroll="loanPanel">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2.5" y="6" width="19" height="13" rx="2"/><path d="M2.5 10h19"/><path d="M6 15h4"/></svg>
+        Loans
+      </button>
+      <button class="nav-item" data-scroll="ledgerPanel" id="navHistory">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
+        Transactions
+      </button>
+      <button class="nav-item" data-scroll="statementPanel">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/><path d="M9 13h6M9 17h6"/></svg>
+        Statements
+      </button>
+    </nav>
+
+    <button class="sidebar-foot" id="profileTrigger" type="button">
+      <div class="avatar">
+        <svg viewBox="0 0 32 32" width="32" height="32">
+          <circle cx="16" cy="16" r="16" fill="#D4B96A"/>
+          <circle cx="16" cy="13" r="5.5" fill="#0B1210"/>
+          <path d="M5 29c1.5-6.5 7-9.5 11-9.5s9.5 3 11 9.5" fill="#0B1210"/>
+        </svg>
+      </div>
+      <div>
+        <div class="sidebar-foot-name">Monday Bello</div>
+        <div class="sidebar-foot-sub">Personal account</div>
+      </div>
+    </button>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main">
+    <div class="topbar">
+      <div>
+        <div class="greeting-eyebrow">Good to see you</div>
+        <div class="greeting">Welcome back, Monday</div>
+      </div>
+      <div class="currency-switcher" id="currencySwitcher"></div>
+    </div>
+
+    <!-- BALANCE CARD -->
+    <div class="balance-card">
+      <svg class="guilloche" viewBox="0 0 500 260" preserveAspectRatio="none">
+        <defs>
+          <linearGradient id="gline" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0" stop-color="#2ED9A8"/>
+            <stop offset="1" stop-color="#D4B96A"/>
+          </linearGradient>
+        </defs>
+        <g fill="none" stroke="url(#gline)" stroke-width="0.6" opacity="0.55">
+          <path d="M 0 130 C 100 30, 180 230, 280 130 S 460 30, 560 130"/>
+          <path d="M 0 150 C 100 50, 180 250, 280 150 S 460 50, 560 150"/>
+          <path d="M 0 110 C 100 10, 180 210, 280 110 S 460 10, 560 110"/>
+          <path d="M 0 90 C 100 -10, 180 190, 280 90 S 460 -10, 560 90"/>
+          <path d="M 0 170 C 100 70, 180 270, 280 170 S 460 70, 560 170"/>
+          <path d="M 0 190 C 100 90, 180 290, 280 190 S 460 90, 560 190"/>
+          <path d="M 0 70 C 100 -30, 180 170, 280 70 S 460 -30, 560 70"/>
+        </g>
+      </svg>
+
+      <div class="balance-row">
+        <div>
+          <div class="balance-eyebrow">Available balance</div>
+          <div class="balance-figure" id="balanceFigure">$0<span class="cents">.00</span></div>
+          <div class="balance-sub" id="balanceUsdRef"></div>
+        </div>
+        <div class="acct-block">
+          <div class="acct-label">Account number</div>
+          <div class="acct-number">0442 8871 903</div>
+          <div class="acct-name">Kobo & Cent · Personal</div>
+        </div>
+      </div>
+
+      <div class="action-row">
+        <button class="action-btn primary" data-modal="transfer">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 7h13M7 7l4-4M7 7l4 4"/><path d="M17 17H4M17 17l-4-4M17 17l-4 4"/></svg>
+          Transfer
+        </button>
+        <button class="action-btn" data-modal="deposit">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v13"/><path d="M6 11l6 6 6-6"/><path d="M4 21h16"/></svg>
+          Deposit
+        </button>
+        <button class="action-btn" data-modal="withdraw">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 21V8"/><path d="M18 13l-6-6-6 6"/><path d="M4 3h16"/></svg>
+          Withdraw
+        </button>
+      </div>
+    </div>
+
+    <!-- RATE TICKER -->
+    <div class="ticker-wrap">
+      <div class="ticker" id="ticker"></div>
+    </div>
+
+    <!-- GRID -->
+    <div class="grid-2">
+      <div class="panel" id="ledgerPanel">
+        <div class="panel-head">
+          <div>
+            <div class="panel-title">Transaction ledger</div>
+            <div class="panel-sub">Every entry, converted to your display currency</div>
+          </div>
+        </div>
+        <div id="txnList"></div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-head">
+          <div class="panel-title">This session</div>
+        </div>
+        <div class="stat-block">
+          <div class="stat-label">Deposited</div>
+          <div class="stat-value" id="statDeposit">$0.00</div>
+        </div>
+        <div class="stat-block">
+          <div class="stat-label">Withdrawn</div>
+          <div class="stat-value" id="statWithdraw">$0.00</div>
+        </div>
+        <div class="stat-block">
+          <div class="stat-label">Transferred</div>
+          <div class="stat-value" id="statTransfer">$0.00</div>
+        </div>
+        <div class="stat-block">
+          <div class="stat-label">Rate base</div>
+          <div class="stat-value" style="font-size:13px; color:var(--muted);">1 USD → displayed in <span id="baseCurrLabel">NGN</span></div>
+          <div class="field-hint">Rates are simulated for this demo, not live market data.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- LOANS + STATEMENTS -->
+    <div class="grid-2" style="margin-top:22px;">
+      <div class="panel" id="loanPanel">
+        <div class="panel-head">
+          <div>
+            <div class="panel-title">Loans</div>
+            <div class="panel-sub">Borrow against your account, repay anytime</div>
+          </div>
+          <svg viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="1.6" width="22" height="22"><rect x="2.5" y="6" width="19" height="13" rx="2"/><path d="M2.5 10h19"/><path d="M6 15h4"/></svg>
+        </div>
+        <div id="loanBody"></div>
+      </div>
+
+      <div class="panel" id="statementPanel">
+        <div class="panel-head">
+          <div>
+            <div class="panel-title">Statements</div>
+            <div class="panel-sub">Download your full transaction history</div>
+          </div>
+        </div>
+        <div class="stat-block">
+          <div class="stat-label">Format</div>
+          <div class="stat-value" style="font-size:14px;">CSV · opens in Excel, Sheets, Numbers</div>
+        </div>
+        <div class="stat-block">
+          <div class="stat-label">Covers</div>
+          <div class="stat-value" style="font-size:14px;" id="statementCount">0 transactions</div>
+          <div class="field-hint">Amounts included in both USD and your selected display currency.</div>
+        </div>
+        <button class="action-btn primary" id="downloadStatementBtn" style="width:100%; justify-content:center; margin-top:6px;">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v13"/><path d="M6 11l6 6 6-6"/><path d="M4 21h16"/></svg>
+          Download statement (CSV)
+        </button>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- MODALS -->
+<div class="overlay" id="overlay">
+
+  <div class="modal" data-modal-panel="transfer" style="display:none;">
+    <div class="modal-head">
+      <div class="modal-title">Transfer</div>
+      <button class="modal-close" data-close>✕</button>
+    </div>
+    <div class="modal-sub">Send money to another Kobo & Cent account.</div>
+    <form id="transferForm">
+      <div class="field">
+        <label>Recipient name</label>
+        <input type="text" id="transferName" placeholder="e.g. Chidi Okonkwo" required>
+      </div>
+      <div class="field">
+        <label>Recipient account number</label>
+        <input type="text" id="transferAcct" placeholder="0000 0000 000" required>
+      </div>
+      <div class="field">
+        <label>Amount (<span class="curr-inline">USD</span>)</label>
+        <input type="number" id="transferAmount" step="0.01" min="0.01" placeholder="0.00" required>
+        <div class="field-hint" id="transferHint"></div>
+      </div>
+      <button class="modal-submit" type="submit">Send transfer</button>
+    </form>
+  </div>
+
+  <div class="modal" data-modal-panel="deposit" style="display:none;">
+    <div class="modal-head">
+      <div class="modal-title">Deposit</div>
+      <button class="modal-close" data-close>✕</button>
+    </div>
+    <div class="modal-sub">Add funds to your available balance.</div>
+    <form id="depositForm">
+      <div class="field">
+        <label>Source</label>
+        <select id="depositSource">
+          <option>Linked debit card •• 4471</option>
+          <option>Bank transfer (ACH)</option>
+          <option>Cash deposit — agent location</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Amount (<span class="curr-inline">USD</span>)</label>
+        <input type="number" id="depositAmount" step="0.01" min="0.01" placeholder="0.00" required>
+      </div>
+      <button class="modal-submit" type="submit">Confirm deposit</button>
+    </form>
+  </div>
+
+  <div class="modal" data-modal-panel="withdraw" style="display:none;">
+    <div class="modal-head">
+      <div class="modal-title">Withdraw</div>
+      <button class="modal-close" data-close>✕</button>
+    </div>
+    <div class="modal-sub">Move money out to a linked card or agent.</div>
+    <form id="withdrawForm">
+      <div class="field">
+        <label>Destination</label>
+        <select id="withdrawDest">
+          <option>Linked debit card •• 4471</option>
+          <option>Bank transfer (ACH)</option>
+          <option>Cash pickup — agent location</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Amount (<span class="curr-inline">USD</span>)</label>
+        <input type="number" id="withdrawAmount" step="0.01" min="0.01" placeholder="0.00" required>
+        <div class="field-hint" id="withdrawHint"></div>
+      </div>
+      <button class="modal-submit" type="submit">Confirm withdrawal</button>
+    </form>
+  </div>
+
+  <div class="modal" data-modal-panel="loanApply" style="display:none;">
+    <div class="modal-head">
+      <div class="modal-title">Apply for a loan</div>
+      <button class="modal-close" data-close>✕</button>
+    </div>
+    <div class="modal-sub">Funds are disbursed instantly to your available balance.</div>
+    <form id="loanApplyForm">
+      <div class="field">
+        <label>Amount (<span class="curr-inline">USD</span>)</label>
+        <input type="number" id="loanAmount" step="0.01" min="1" placeholder="0.00" required>
+      </div>
+      <div class="field">
+        <label>Repayment term</label>
+        <div class="tenure-options" id="tenureOptions">
+          <label class="tenure-opt selected" data-months="3" data-rate="0.08">
+            <input type="radio" name="tenure" value="3" checked>
+            <span class="t-months">3 mo</span>
+            <span class="t-rate">8% flat</span>
+          </label>
+          <label class="tenure-opt" data-months="6" data-rate="0.14">
+            <input type="radio" name="tenure" value="6">
+            <span class="t-months">6 mo</span>
+            <span class="t-rate">14% flat</span>
+          </label>
+          <label class="tenure-opt" data-months="12" data-rate="0.22">
+            <input type="radio" name="tenure" value="12">
+            <span class="t-months">12 mo</span>
+            <span class="t-rate">22% flat</span>
+          </label>
+        </div>
+      </div>
+      <div class="field">
+        <label>Purpose</label>
+        <input type="text" id="loanPurpose" placeholder="e.g. Business inventory" required>
+      </div>
+      <div class="field-hint" id="loanApplyHint" style="margin-bottom:10px;"></div>
+      <button class="modal-submit" type="submit">Apply for loan</button>
+    </form>
+  </div>
+
+  <div class="modal" data-modal-panel="loanRepay" style="display:none;">
+    <div class="modal-head">
+      <div class="modal-title">Make a repayment</div>
+      <button class="modal-close" data-close>✕</button>
+    </div>
+    <div class="modal-sub" id="loanRepaySub">Pay down your outstanding loan balance.</div>
+    <form id="loanRepayForm">
+      <div class="field">
+        <label>Amount (<span class="curr-inline">USD</span>)</label>
+        <input type="number" id="loanRepayAmount" step="0.01" min="0.01" placeholder="0.00" required>
+        <div class="field-hint" id="loanRepayHint"></div>
+      </div>
+      <button class="modal-submit" type="submit">Repay loan</button>
+    </form>
+  </div>
+
+  <div class="modal" data-modal-panel="profile" style="display:none;">
+    <div class="modal-head">
+      <div class="modal-title">Profile</div>
+      <button class="modal-close" data-close>✕</button>
+    </div>
+    <div class="profile-head">
+      <div class="profile-avatar-lg">
+        <svg viewBox="0 0 32 32" width="56" height="56">
+          <circle cx="16" cy="16" r="16" fill="#D4B96A"/>
+          <circle cx="16" cy="13" r="5.5" fill="#0B1210"/>
+          <path d="M5 29c1.5-6.5 7-9.5 11-9.5s9.5 3 11 9.5" fill="#0B1210"/>
+        </svg>
+      </div>
+      <div>
+        <div class="profile-name">Monday Bello</div>
+        <div class="profile-sub">Personal account</div>
+        <div class="profile-status" style="margin-top:6px;">● Verified</div>
+      </div>
+    </div>
+    <div class="profile-row">
+      <div class="p-label">Account number</div>
+      <div class="p-value">0442 8871 903</div>
+    </div>
+    <div class="profile-row">
+      <div class="p-label">Account type</div>
+      <div class="p-value">Personal · Kobo & Cent</div>
+    </div>
+    <div class="profile-row">
+      <div class="p-label">Email</div>
+      <div class="p-value">monday.bello@example.com</div>
+    </div>
+    <div class="profile-row">
+      <div class="p-label">Phone</div>
+      <div class="p-value">+234 801 234 5678</div>
+    </div>
+    <div class="profile-row">
+      <div class="p-label">Member since</div>
+      <div class="p-value">Jan 2023</div>
+    </div>
+    <div class="profile-row">
+      <div class="p-label">Display currency</div>
+      <div class="p-value" id="profileCurrency">NGN</div>
+    </div>
+  </div>
+
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+(function(){
+  // ---------- CURRENCY CONFIG ----------
+  // Rate = units of currency per 1 USD (simulated, for demo purposes only)
+  const CURRENCIES = {
+    USD: { symbol: '$',  name: 'US Dollar',        rate: 1,      flag: '🇺🇸' },
+    NGN: { symbol: '₦',  name: 'Nigerian Naira',   rate: 1600,   flag: '🇳🇬' },
+    GBP: { symbol: '£',  name: 'British Pound',    rate: 0.78,   flag: '🇬🇧' },
+    EUR: { symbol: '€',  name: 'Euro',             rate: 0.92,   flag: '🇪🇺' },
+    GHS: { symbol: 'GH₵',name: 'Ghanaian Cedi',    rate: 15.4,   flag: '🇬🇭' },
+    KES: { symbol: 'KSh',name: 'Kenyan Shilling',  rate: 129.2,  flag: '🇰🇪' },
+    ZAR: { symbol: 'R',  name: 'South African Rand', rate: 18.1, flag: '🇿🇦' },
+    CAD: { symbol: 'C$', name: 'Canadian Dollar',  rate: 1.36,   flag: '🇨🇦' },
+  };
+
+  // ---------- STATE ----------
+  let state = {
+    balanceUsd: 4820.75,
+    currency: 'NGN',
+    txns: [
+      { type: 'credit', name: 'Salary — Meridian Corp', amountUsd: 3200, ts: Date.now() - 86400000*2 },
+      { type: 'debit',  name: 'Transfer to Chidi Okonkwo', amountUsd: 120, ts: Date.now() - 86400000*1.4 },
+      { type: 'debit',  name: 'Withdrawal — Debit card', amountUsd: 60, ts: Date.now() - 86400000*0.6 },
+    ],
+    sessionStats: { deposit: 0, withdraw: 0, transfer: 0 },
+    loan: { active: false, principalUsd: 0, balanceUsd: 0, ratePct: 0, tenureMonths: 0, purpose: '' }
+  };
+
+  function fmt(amountUsd, code){
+    const c = CURRENCIES[code];
+    const val = amountUsd * c.rate;
+    const parts = val.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).split('.');
+    return { whole: c.symbol + parts[0], cents: '.' + parts[1] };
+  }
+  function fmtPlain(amountUsd, code){
+    const c = CURRENCIES[code];
+    const val = amountUsd * c.rate;
+    return c.symbol + val.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  }
+
+  // ---------- CURRENCY SWITCHER ----------
+  const switcherEl = document.getElementById('currencySwitcher');
+  Object.keys(CURRENCIES).forEach(code => {
+    const btn = document.createElement('button');
+    btn.className = 'curr-pill' + (code === state.currency ? ' active' : '');
+    btn.textContent = code;
+    btn.dataset.code = code;
+    btn.addEventListener('click', () => {
+      state.currency = code;
+      render();
+    });
+    switcherEl.appendChild(btn);
+  });
+
+  // ---------- TICKER ----------
+  const tickerEl = document.getElementById('ticker');
+  function buildTicker(){
+    const items = Object.entries(CURRENCIES).filter(([code]) => code !== 'USD');
+    let html = '';
+    for(let rep=0; rep<2; rep++){
+      items.forEach(([code, c], i) => {
+        const trend = (i % 3 === 0) ? 'down' : 'up';
+        const arrow = trend === 'up' ? '▲' : '▼';
+        html += `<div class="ticker-item"><span>${c.flag} USD/${code}</span><b>${c.rate.toLocaleString()}</b><span class="${trend}">${arrow} ${(Math.random()*0.4+0.05).toFixed(2)}%</span></div>`;
+      });
+    }
+    tickerEl.innerHTML = html;
+  }
+  buildTicker();
+
+  // ---------- RENDER ----------
+  function render(){
+    // currency pills
+    document.querySelectorAll('.curr-pill').forEach(p => {
+      p.classList.toggle('active', p.dataset.code === state.currency);
+    });
+
+    // balance
+    const f = fmt(state.balanceUsd, state.currency);
+    document.getElementById('balanceFigure').innerHTML = f.whole + '<span class="cents">' + f.cents + '</span>';
+    document.getElementById('balanceUsdRef').textContent = state.currency === 'USD'
+      ? 'Base currency'
+      : `≈ ${fmtPlain(state.balanceUsd, 'USD')} · 1 USD = ${CURRENCIES[state.currency].rate.toLocaleString()} ${state.currency}`;
+    document.getElementById('baseCurrLabel').textContent = state.currency;
+    const profileCurr = document.getElementById('profileCurrency');
+    if(profileCurr) profileCurr.textContent = state.currency;
+
+    // currency labels inside modals
+    document.querySelectorAll('.curr-inline').forEach(el => el.textContent = state.currency);
+
+    // stats
+    document.getElementById('statDeposit').textContent = fmtPlain(state.sessionStats.deposit, state.currency);
+    document.getElementById('statWithdraw').textContent = fmtPlain(state.sessionStats.withdraw, state.currency);
+    document.getElementById('statTransfer').textContent = fmtPlain(state.sessionStats.transfer, state.currency);
+
+    // transactions
+    const list = document.getElementById('txnList');
+    if(state.txns.length === 0){
+      list.innerHTML = '<div class="empty-state">No transactions yet. Your ledger starts here.</div>';
+    } else {
+      const sorted = [...state.txns].sort((a,b) => b.ts - a.ts);
+      list.innerHTML = sorted.map(t => {
+        const isCredit = t.type === 'credit';
+        const iconSvg = isCredit
+          ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 19V5"/><path d="M6 11l6-6 6 6"/></svg>'
+          : '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14"/><path d="M18 13l-6 6-6-6"/></svg>';
+        const date = new Date(t.ts).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+        return `<div class="txn-row">
+          <div class="txn-left">
+            <div class="txn-icon ${t.type}">${iconSvg}</div>
+            <div>
+              <div class="txn-name">${t.name}</div>
+              <div class="txn-meta">${date}</div>
+            </div>
+          </div>
+          <div class="txn-amt ${t.type}">${isCredit ? '+' : '−'}${fmtPlain(t.amountUsd, state.currency)}</div>
+        </div>`;
+      }).join('');
+    }
+
+    // statement count
+    document.getElementById('statementCount').textContent = state.txns.length + (state.txns.length === 1 ? ' transaction' : ' transactions');
+
+    renderLoan();
+  }
+
+  // ---------- LOANS ----------
+  function renderLoan(){
+    const body = document.getElementById('loanBody');
+    const loan = state.loan;
+    if(!loan.active){
+      body.innerHTML = `
+        <div class="loan-empty">
+          <p>No active loan. Borrow up to your eligibility with a flat interest rate — funds land in your balance instantly.</p>
+          <button class="action-btn primary" data-modal="loanApply" style="width:100%; justify-content:center;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+            Apply for a loan
+          </button>
+        </div>`;
+    } else {
+      const paidFrac = Math.max(0, Math.min(1, 1 - (loan.balanceUsd / (loan.principalUsd * (1 + loan.ratePct)))));
+      body.innerHTML = `
+        <div class="loan-badge">● Active loan</div>
+        <div class="loan-grid">
+          <div class="stat-block" style="margin-bottom:0;">
+            <div class="stat-label">Principal</div>
+            <div class="stat-value" style="font-size:15px;">${fmtPlain(loan.principalUsd, state.currency)}</div>
+          </div>
+          <div class="stat-block" style="margin-bottom:0;">
+            <div class="stat-label">Interest / term</div>
+            <div class="stat-value" style="font-size:15px;">${Math.round(loan.ratePct*100)}% · ${loan.tenureMonths} mo</div>
+          </div>
+        </div>
+        <div class="stat-block">
+          <div class="stat-label">Outstanding balance</div>
+          <div class="stat-value">${fmtPlain(loan.balanceUsd, state.currency)}</div>
+          <div class="stat-bar-track"><div class="stat-bar-fill" style="width:${(paidFrac*100).toFixed(0)}%;"></div></div>
+          <div class="field-hint">${(paidFrac*100).toFixed(0)}% repaid · purpose: ${loan.purpose}</div>
+        </div>
+        <button class="action-btn primary" data-modal="loanRepay" style="width:100%; justify-content:center; margin-top:4px;">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 19V5"/><path d="M6 11l6-6 6 6"/></svg>
+          Make a repayment
+        </button>`;
+    }
+    // re-bind any new data-modal buttons rendered inside loanBody
+    body.querySelectorAll('[data-modal]').forEach(btn => {
+      btn.addEventListener('click', () => openModal(btn.dataset.modal));
+    });
+  }
+
+  // ---------- MODALS ----------
+  const overlay = document.getElementById('overlay');
+  function openModal(name){
+    document.querySelectorAll('[data-modal-panel]').forEach(m => {
+      m.style.display = (m.dataset.modalPanel === name) ? 'block' : 'none';
+    });
+    overlay.classList.add('open');
+    document.getElementById('transferHint').textContent = '';
+    document.getElementById('withdrawHint').textContent = '';
+    document.getElementById('loanApplyHint').textContent = '';
+    const repayHint = document.getElementById('loanRepayHint');
+    const repaySub = document.getElementById('loanRepaySub');
+    if(name === 'loanRepay' && state.loan.active){
+      repaySub.textContent = `Outstanding balance: ${fmtPlain(state.loan.balanceUsd, state.currency)}`;
+      repayHint.textContent = '';
+    }
+  }
+  function closeModal(){ overlay.classList.remove('open'); }
+
+  document.querySelectorAll('[data-modal]').forEach(btn => {
+    btn.addEventListener('click', () => openModal(btn.dataset.modal));
+  });
+  document.getElementById('profileTrigger').addEventListener('click', () => openModal('profile'));
+  document.querySelectorAll('[data-close]').forEach(btn => btn.addEventListener('click', closeModal));
+  overlay.addEventListener('click', (e) => { if(e.target === overlay) closeModal(); });
+  document.addEventListener('keydown', (e) => { if(e.key === 'Escape') closeModal(); });
+
+  // nav active state + scroll to the right section
+  document.querySelectorAll('.nav-item[data-scroll]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.nav-item[data-scroll]').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      const target = btn.dataset.scroll;
+      if(target === 'top'){
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      } else {
+        const el = document.getElementById(target);
+        if(el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    });
+  });
+
+  // tenure selector (loan application)
+  document.querySelectorAll('.tenure-opt').forEach(opt => {
+    opt.addEventListener('click', () => {
+      document.querySelectorAll('.tenure-opt').forEach(o => o.classList.remove('selected'));
+      opt.classList.add('selected');
+      opt.querySelector('input').checked = true;
+    });
+  });
+
+  // ---------- TOAST ----------
+  let toastTimer;
+  function toast(msg, danger){
+    const el = document.getElementById('toast');
+    el.textContent = msg;
+    el.classList.toggle('danger', !!danger);
+    el.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => el.classList.remove('show'), 2600);
+  }
+
+  // amount entered is in the CURRENTLY SELECTED display currency -> convert to USD for storage
+  function toUsd(amountInDisplayCurrency){
+    return amountInDisplayCurrency / CURRENCIES[state.currency].rate;
+  }
+
+  // ---------- FORMS ----------
+  document.getElementById('depositForm').addEventListener('submit', (e) => {
+    e.preventDefault();
+    const raw = parseFloat(document.getElementById('depositAmount').value);
+    if(!raw || raw <= 0) return;
+    const usd = toUsd(raw);
+    state.balanceUsd += usd;
+    state.sessionStats.deposit += usd;
+    state.txns.push({ type: 'credit', name: 'Deposit — ' + document.getElementById('depositSource').value, amountUsd: usd, ts: Date.now() });
+    render();
+    closeModal();
+    e.target.reset();
+    toast(`Deposited ${fmtPlain(usd, state.currency)} successfully`);
+  });
+
+  document.getElementById('withdrawForm').addEventListener('submit', (e) => {
+    e.preventDefault();
+    const raw = parseFloat(document.getElementById('withdrawAmount').value);
+    if(!raw || raw <= 0) return;
+    const usd = toUsd(raw);
+    if(usd > state.balanceUsd){
+      document.getElementById('withdrawHint').textContent = `Insufficient funds — available balance is ${fmtPlain(state.balanceUsd, state.currency)}`;
+      document.getElementById('withdrawHint').classList.add('err');
+      return;
+    }
+    state.balanceUsd -= usd;
+    state.sessionStats.withdraw += usd;
+    state.txns.push({ type: 'debit', name: 'Withdrawal — ' + document.getElementById('withdrawDest').value, amountUsd: usd, ts: Date.now() });
+    render();
+    closeModal();
+    e.target.reset();
+    toast(`Withdrew ${fmtPlain(usd, state.currency)} successfully`);
+  });
+
+  document.getElementById('transferForm').addEventListener('submit', (e) => {
+    e.preventDefault();
+    const raw = parseFloat(document.getElementById('transferAmount').value);
+    const name = document.getElementById('transferName').value.trim();
+    if(!raw || raw <= 0 || !name) return;
+    const usd = toUsd(raw);
+    if(usd > state.balanceUsd){
+      document.getElementById('transferHint').textContent = `Insufficient funds — available balance is ${fmtPlain(state.balanceUsd, state.currency)}`;
+      document.getElementById('transferHint').classList.add('err');
+      return;
+    }
+    state.balanceUsd -= usd;
+    state.sessionStats.transfer += usd;
+    state.txns.push({ type: 'debit', name: 'Transfer to ' + name, amountUsd: usd, ts: Date.now() });
+    render();
+    closeModal();
+    e.target.reset();
+    toast(`Sent ${fmtPlain(usd, state.currency)} to ${name}`);
+  });
+
+  document.getElementById('loanApplyForm').addEventListener('submit', (e) => {
+    e.preventDefault();
+    if(state.loan.active){
+      document.getElementById('loanApplyHint').textContent = 'You already have an active loan. Repay it fully before applying again.';
+      document.getElementById('loanApplyHint').classList.add('err');
+      return;
+    }
+    const raw = parseFloat(document.getElementById('loanAmount').value);
+    const purpose = document.getElementById('loanPurpose').value.trim();
+    const selected = document.querySelector('.tenure-opt.selected');
+    if(!raw || raw <= 0 || !purpose || !selected) return;
+    const usd = toUsd(raw);
+    const rate = parseFloat(selected.dataset.rate);
+    const months = parseInt(selected.dataset.months, 10);
+
+    state.loan = {
+      active: true,
+      principalUsd: usd,
+      balanceUsd: usd * (1 + rate),
+      ratePct: rate,
+      tenureMonths: months,
+      purpose: purpose
+    };
+    state.balanceUsd += usd;
+    state.txns.push({ type: 'credit', name: 'Loan disbursement — ' + purpose, amountUsd: usd, ts: Date.now() });
+    render();
+    closeModal();
+    e.target.reset();
+    document.querySelectorAll('.tenure-opt').forEach(o => o.classList.remove('selected'));
+    document.querySelector('.tenure-opt[data-months="3"]').classList.add('selected');
+    toast(`Loan of ${fmtPlain(usd, state.currency)} disbursed to your balance`);
+  });
+
+  document.getElementById('loanRepayForm').addEventListener('submit', (e) => {
+    e.preventDefault();
+    const raw = parseFloat(document.getElementById('loanRepayAmount').value);
+    if(!raw || raw <= 0) return;
+    const usd = toUsd(raw);
+    if(usd > state.balanceUsd){
+      document.getElementById('loanRepayHint').textContent = `Insufficient funds — available balance is ${fmtPlain(state.balanceUsd, state.currency)}`;
+      document.getElementById('loanRepayHint').classList.add('err');
+      return;
+    }
+    const pay = Math.min(usd, state.loan.balanceUsd);
+    state.balanceUsd -= pay;
+    state.loan.balanceUsd -= pay;
+    state.txns.push({ type: 'debit', name: 'Loan repayment', amountUsd: pay, ts: Date.now() });
+    let fullyPaid = false;
+    if(state.loan.balanceUsd <= 0.005){
+      state.loan.active = false;
+      state.loan.balanceUsd = 0;
+      fullyPaid = true;
+    }
+    render();
+    closeModal();
+    e.target.reset();
+    toast(fullyPaid ? 'Loan fully repaid — nice work!' : `Repaid ${fmtPlain(pay, state.currency)} towards your loan`);
+  });
+
+  // ---------- STATEMENT DOWNLOAD ----------
+  document.getElementById('downloadStatementBtn').addEventListener('click', () => {
+    const sorted = [...state.txns].sort((a,b) => a.ts - b.ts);
+    const rows = [['Date', 'Description', 'Type', `Amount (USD)`, `Amount (${state.currency})`]];
+    sorted.forEach(t => {
+      rows.push([
+        new Date(t.ts).toLocaleDateString('en-US', { year:'numeric', month:'short', day:'numeric' }),
+        t.name.replace(/,/g, ';'),
+        t.type === 'credit' ? 'Credit' : 'Debit',
+        t.amountUsd.toFixed(2),
+        (t.amountUsd * CURRENCIES[state.currency].rate).toFixed(2)
+      ]);
+    });
+    const csv = rows.map(r => r.join(',')).join('\n');
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    const stamp = new Date().toISOString().slice(0,10);
+    a.href = url;
+    a.download = `kobo-and-cent-statement-${stamp}.csv`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    toast('Statement downloaded');
+  });
+
+  render();
+})();
+</script>
+
+</body>
+</html>
